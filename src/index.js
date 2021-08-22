@@ -1,11 +1,12 @@
 const express = require('express');
-const router = require('./router')
+const router = require('../router')
 const morgan = require('morgan');
 const cors = require('cors');
-const ErrorHandler = require('./middleware/error-handler')
+const ErrorHandler = require('../middleware/error-handler')
 const compression = require('compression');
+const serverless = require('serverless-http')
 
-require('./model')
+require('../model')
 
 const app = express();
 app.use(compression())
@@ -18,14 +19,10 @@ app.use(express.json());
 app.use(cors());
 
 
-app.use('/api/v1',router)
+app.use('/.netlify/functions/api',router)
 
 
 //挂载统一处理服务端错误中间件
 app.use(ErrorHandler())
 
-
-const PORT = process.env.PORT || 4000
-app.listen(PORT,()=>{
-    console.log(`Server running at http://localhost:${PORT}`)
-})
+module.exports.handler = serverless(app)
